@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="一纸书缘 · 敷天图书协会特别活动：写下你与一本书的故事，投入信封，让书中的光照见同频的人。">
+<meta name="theme-color" content="#2c2416">
+<title>一纸书缘 · 书中的光，照见同频的人</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23bf3b2c'/%3E%3Ctext x='32' y='46' font-size='38' text-anchor='middle' fill='%23f7ecd6' font-family='KaiTi,SimSun,serif'%3E%E4%B9%A6%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+<!-- 字体异步加载：校园网/微信里字体站被墙时不至于白屏，先用系统宋楷兜底 -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.loli.net/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;700&display=swap">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;400;600;700&display=swap">
+</noscript>
+<style>
+  /* ════ 设计令牌：宣纸 · 墨 · 烫金 · 朱印 ════ */
+  :root{
+    --paper:#faf6ee;          /* 卡片纸面 */
+    --paper-2:#f2ebdc;        /* 次级纸面 */
+    --bg:#e9dfcb;             /* 页面底色 */
+    --ink:#2c2416;            /* 浓墨 */
+    --ink-soft:#43382a;
+    --ink-light:#5f5138;
+    --ink-faint:#9b8a70;      /* 淡墨（JS 内联样式也引用此变量） */
+    --gold:#c0913c;
+    --gold-deep:#9a7128;
+    --gold-light:#e9cf92;
+    --seal:#bf3b2c;           /* 朱印 */
+    --red:#a83228;
+    --green:#2f7a4a;
+    --line:rgba(44,36,22,.13);
+    --line-soft:rgba(44,36,22,.07);
+    --sh-1:0 1px 2px rgba(44,36,22,.05);
+    --sh-2:0 1px 2px rgba(44,36,22,.05),0 10px 26px -16px rgba(44,36,22,.5);
+    --sh-3:0 2px 6px rgba(44,36,22,.07),0 22px 44px -24px rgba(44,36,22,.6);
+    --nav-h:60px;
+    --r:2px;
+    --ease:cubic-bezier(.22,.7,.3,1);
+    --font-body:'Noto Serif SC','Source Han Serif SC','Songti SC','STSong','SimSun',serif;
+    --font-hand:'Ma Shan Zheng','Kaiti SC','KaiTi','STKaiti',cursive;
+  }
+
+  /* ════ 基础 ════ */
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;scroll-padding-top:var(--nav-h);-webkit-text-size-adjust:100%;}
+  body{
+    font-family:var(--font-body);
+    background-color:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.75;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 18% 12%,rgba(192,145,60,.10) 0%,transparent 62%),
+      radial-gradient(ellipse 60% 45% at 88% 8%,rgba(191,59,44,.055) 0%,transparent 58%),
+      radial-gradient(ellipse 80% 60% at 50% 100%,rgba(44,36,22,.05) 0%,transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-attachment:fixed;
+  }
+  h1,h2,h3{line-height:1.35;font-weight:600;}
+  a{color:var(--gold-deep);}
+  ::selection{background:rgba(192,145,60,.26);}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:#cabfa6;border-radius:6px;}
+  ::-webkit-scrollbar-thumb:hover{background:#b3a78c;}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--r);}
+
+  /* ════ 导航 ════ */
+  nav{
+    position:sticky;top:0;z-index:100;
+    height:var(--nav-h);
+    background:var(--ink);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 clamp(1rem,4vw,2.5rem);
+    box-shadow:0 2px 14px rgba(44,36,22,.22);
+  }
+  nav::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(233,207,146,.55),transparent);
+  }
+  .nav-logo{
+    font-family:var(--font-hand);
+    font-size:1.35rem;color:var(--gold-light);
+    letter-spacing:3px;line-height:1;
+    background:none;border:none;cursor:pointer;padding:6px 2px;
+    transition:color .25s;
+    white-space:nowrap;
+  }
+  .nav-logo:hover{color:#f4dfa8;}
+  .nav-tabs{display:flex;gap:.15rem;align-items:center;}
+  .nav-tab{
+    position:relative;height:var(--nav-h);padding:0 clamp(.55rem,1.6vw,1.05rem);
+    background:none;border:none;cursor:pointer;
+    font-family:var(--font-body);font-size:.9rem;letter-spacing:1px;
+    color:rgba(250,246,238,.62);
+    transition:color .25s;
+    white-space:nowrap;
+  }
+  .nav-tab::after{
+    content:'';position:absolute;left:50%;bottom:14px;width:0;height:2px;
+    background:var(--gold);border-radius:2px;
+    transform:translateX(-50%);transition:width .28s var(--ease);
+  }
+  .nav-tab:hover{color:var(--gold-light);}
+  .nav-tab.active{color:var(--gold-light);}
+  .nav-tab.active::after{width:1.35rem;}
+  .nav-burger{
+    display:none;background:none;border:none;cursor:pointer;
+    color:var(--gold-light);font-size:1.3rem;padding:.3rem .5rem;line-height:1;
+  }
+
+  /* ════ 页面容器与切换 ════ */
+  .page{display:none;min-height:calc(100vh - var(--nav-h));padding-bottom:1px;}
+  .page.active{display:block;animation:pageIn .45s var(--ease);}
+  @keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+  @supports (min-height:100dvh){
+    .page{min-height:calc(100dvh - var(--nav-h));}
+  }
+  .page-wrap{max-width:700px;margin:0 auto;padding:3.5rem 1.5rem;}
+  .page-wrap--wide{max-width:1120px;}
+  .page-wrap--tight{padding-bottom:0;}
+
+  /* ════ 通用标题 ════ */
+  .page-heading{text-align:center;margin-bottom:2.5rem;}
+  .page-heading .en{
+    display:block;font-size:.72rem;letter-spacing:.32em;
+    color:var(--gold-deep);opacity:.85;margin-bottom:.7rem;
+  }
+  .page-heading h2{font-family:var(--font-hand);font-size:clamp(1.7rem,4.4vw,2.15rem);font-weight:400;}
+  .page-heading::after{
+    content:'';display:block;width:2.6rem;height:1px;margin:1.1rem auto 0;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+
+  /* ════ 按钮体系 ════ */
+  .btn-primary,.btn-ghost,.btn-submit,.btn-draw,.btn-approve,.btn-reject,.btn-del,
+  .btn-copy,.btn-export,.btn-logout{
+    font-family:var(--font-body);cursor:pointer;border-radius:var(--r);
+    transition:transform .18s var(--ease),background .2s,color .2s,border-color .2s,box-shadow .2s;
+  }
+  .btn-primary{
+    padding:.8rem 2.4rem;border:1px solid var(--gold-deep);
+    background:linear-gradient(180deg,var(--gold),#b2842f);
+    color:#fff;font-size:.95rem;letter-spacing:.12em;
+    box-shadow:0 6px 18px -10px rgba(154,113,40,.9);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(154,113,40,.95);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{
+    padding:.8rem 1.8rem;border:1px solid var(--line);
+    background:rgba(250,246,238,.6);color:var(--ink-light);
+    font-size:.9rem;letter-spacing:.1em;
+  }
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold-deep);background:var(--paper);}
+  .btn-submit{
+    width:100%;padding:.9rem;margin-top:.5rem;
+    background:var(--ink);color:var(--gold-light);border:1px solid var(--ink);
+    font-size:.95rem;letter-spacing:.22em;
+  }
+  .btn-submit:hover:not(:disabled){background:var(--ink-soft);}
+  .btn-submit:active:not(:disabled){transform:translateY(1px);}
+  .btn-submit:disabled{opacity:.62;cursor:not-allowed;}
+  .btn-draw{
+    padding:.7rem 1.9rem;border:1px solid var(--ink);
+    background:transparent;color:var(--ink);
+    font-size:.88rem;letter-spacing:.14em;
+  }
+  .btn-draw:hover{background:var(--ink);color:var(--paper);}
+  .btn-sm{padding:.32rem .7rem;font-size:.75rem;letter-spacing:.06em;margin-left:4px;}
+  .btn-copy{
+    padding:.22rem .7rem;border:1px solid var(--seal);
+    background:transparent;color:var(--seal);font-size:.75rem;letter-spacing:.08em;
+  }
+  .btn-copy:hover{background:var(--seal);color:#fff;}
+  .btn-approve{
+    padding:.34rem .8rem;border:none;margin-right:4px;
+    background:var(--gold);color:#fff;font-size:.78rem;letter-spacing:.08em;
+  }
+  .btn-approve:hover{background:var(--gold-deep);}
+  .btn-reject{
+    padding:.34rem .8rem;border:1px solid var(--red);
+    background:transparent;color:var(--red);font-size:.78rem;letter-spacing:.08em;
+  }
+  .btn-reject:hover{background:var(--red);color:#fff;}
+  .btn-del{
+    padding:.34rem .8rem;border:1px solid var(--line);margin-left:4px;
+    background:transparent;color:var(--ink-faint);font-size:.78rem;
+  }
+  .btn-del:hover{color:var(--red);border-color:var(--red);background:rgba(168,50,40,.06);}
+  .btn-export{
+    padding:.45rem 1.1rem;border:1px solid var(--ink);
+    background:transparent;color:var(--ink);font-size:.82rem;letter-spacing:.08em;
+  }
+  .btn-export:hover{background:var(--ink);color:var(--paper);}
+  .btn-logout{
+    padding:.45rem 1rem;border:1px solid var(--line);
+    background:transparent;color:var(--ink-faint);font-size:.8rem;
+  }
+  .btn-logout:hover{color:var(--red);border-color:var(--red);}
+
+  /* ════ 首页 ════ */
+  .home-hero{
+    position:relative;overflow:hidden;
+    min-height:calc(100vh - var(--nav-h));
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:3.5rem 1.5rem 4rem;text-align:center;
+  }
+  @supports (min-height:100dvh){
+    .home-hero{min-height:calc(100dvh - var(--nav-h));}
+  }
+  .home-hero::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 55% 45% at 50% 42%,rgba(192,145,60,.14) 0%,transparent 70%);
+  }
+  .hero-mark{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+    font-family:var(--font-hand);font-size:clamp(16rem,42vw,30rem);
+    color:rgba(44,36,22,.035);line-height:1;
+    pointer-events:none;user-select:none;
+  }
+  .float-char{
+    position:absolute;font-family:var(--font-hand);
+    color:rgba(154,113,40,.16);line-height:1;
+    user-select:none;pointer-events:none;
+  }
+  .fc1{top:15%;left:9%;font-size:4.4rem;animation:floatA 10s ease-in-out infinite;}
+  .fc2{bottom:19%;right:8%;font-size:3.6rem;animation:floatB 12s ease-in-out infinite;}
+  .fc3{top:23%;right:16%;font-size:2.4rem;animation:floatA 14s 1s ease-in-out infinite;}
+  @keyframes floatA{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-20px) rotate(4deg);}}
+  @keyframes floatB{0%,100%{transform:translateY(0) rotate(4deg);}50%{transform:translateY(16px) rotate(-5deg);}}
+  .hero-kicker{
+    position:relative;font-size:.76rem;letter-spacing:.34em;
+    color:var(--gold-deep);margin-bottom:1.6rem;text-indent:.34em;
+    animation:fadeUp .8s ease both;
+  }
+  .hero-title-row{
+    position:relative;display:flex;align-items:center;justify-content:center;gap:1.1rem;
+    margin-bottom:1.6rem;animation:fadeUp .8s .12s ease both;
+  }
+  .hero-title{
+    font-family:var(--font-hand);font-weight:400;
+    font-size:clamp(2.6rem,7vw,4.4rem);
+    color:var(--ink);line-height:1.15;letter-spacing:.04em;
+  }
+  .hero-seal{
+    font-family:var(--font-hand);font-size:1.05rem;color:#f7ead2;
+    background:linear-gradient(160deg,#c74433,#a92f22);
+    padding:.5rem .52rem;line-height:1.12;letter-spacing:.08em;
+    display:flex;flex-direction:column;align-items:center;
+    transform:rotate(-8deg);
+    border-radius:6px 10px 7px 12px / 12px 7px 10px 6px;
+    box-shadow:inset 0 0 0 2px rgba(247,234,210,.7),0 8px 18px -8px rgba(168,50,40,.75);
+    user-select:none;
+  }
+  .hero-desc{
+    position:relative;max-width:32rem;margin:0 auto 2.4rem;
+    font-size:clamp(.9rem,2.6vw,1rem);line-height:2.1;color:var(--ink-light);
+    animation:fadeUp .8s .24s ease both;
+  }
+  .hero-actions{
+    position:relative;display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;
+    animation:fadeUp .8s .36s ease both;
+  }
+  .home-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));
+    gap:1.4rem;max-width:960px;margin:0 auto;padding:0 1.5rem 5rem;
+  }
+  .info-card{
+    position:relative;overflow:hidden;
+    background:var(--paper);padding:1.6rem 1.5rem;
+    border:1px solid var(--line-soft);border-radius:var(--r);
+    box-shadow:var(--sh-1);text-align:left;
+    transition:transform .28s var(--ease),box-shadow .28s var(--ease);
+  }
+  .info-card::after{
+    content:'';position:absolute;left:0;bottom:0;width:100%;height:2px;
+    background:linear-gradient(90deg,var(--gold),var(--gold-light));
+    transform:scaleX(0);transform-origin:left;transition:transform .38s var(--ease);
+  }
+  .info-card:hover{transform:translateY(-5px);box-shadow:var(--sh-2);}
+  .info-card:hover::after{transform:scaleX(1);}
+  .info-card .num{
+    font-family:var(--font-hand);font-size:2rem;color:var(--gold);
+    line-height:1;margin-bottom:.7rem;
+  }
+  .info-card h3{font-size:.98rem;margin-bottom:.5rem;letter-spacing:.03em;}
+  .info-card p{font-size:.83rem;color:var(--ink-faint);line-height:1.85;}
+
+  /* ════ 纸卡 ════ */
+  .paper-card{
+    position:relative;background:var(--paper);
+    border:1px solid var(--line-soft);border-radius:var(--r);
+    padding:2.2rem clamp(1.2rem,5vw,2.4rem);
+    box-shadow:var(--sh-2);
+  }
+  .paper-card::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:repeating-linear-gradient(90deg,var(--gold) 0,var(--gold) 10px,transparent 10px,transparent 20px);
+    opacity:.32;border-radius:var(--r) var(--r) 0 0;
+  }
+
+  /* ════ 表单 ════ */
+  .form-row{margin-bottom:1.5rem;}
+  .form-row label{
+    display:block;font-size:.82rem;letter-spacing:.1em;
+    color:var(--ink-light);margin-bottom:.55rem;
+  }
+  .form-row label .opt{
+    font-size:.72rem;color:var(--ink-faint);letter-spacing:.04em;margin-left:.25rem;
+  }
+  .form-row input,.form-row textarea,.form-row select{
+    width:100%;padding:.7rem .9rem;
+    background:#fdfbf6;border:1px solid var(--line);border-radius:var(--r);
+    font-family:var(--font-body);font-size:1rem;color:var(--ink);
+    outline:none;transition:border-color .2s,box-shadow .2s,background .2s;
+    resize:vertical;
+  }
+  .form-row input::placeholder,.form-row textarea::placeholder{color:#c6b99f;}
+  .form-row input:hover,.form-row textarea:hover{border-color:rgba(44,36,22,.22);}
+  .form-row input:focus,.form-row textarea:focus{
+    background:#fff;border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(192,145,60,.14);
+  }
+  .form-row textarea{min-height:9.5rem;line-height:1.9;}
+  .form-row .hint{
+    display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+    font-size:.74rem;color:var(--ink-faint);margin-top:.45rem;line-height:1.7;
+  }
+  .hint--center{justify-content:center;text-align:center;margin-top:1rem;}
+  .count{flex:none;font-variant-numeric:tabular-nums;}
+  .count.ok{color:var(--green);}
+  .count.warn{color:var(--red);font-weight:600;}
+  .success-msg{
+    display:none;text-align:center;padding:.9rem 1rem;margin-top:1.1rem;
+    background:rgba(192,145,60,.1);border:1px solid rgba(192,145,60,.4);
+    border-radius:var(--r);
+    font-size:.86rem;color:var(--ink-light);animation:fadeUp .4s var(--ease);
+  }
+
+  /* ════ 拆信封 ════ */
+  .envelope-area{position:relative;text-align:center;padding:3.5rem 1.5rem 5rem;}
+  .draw-count{font-size:.84rem;color:var(--ink-faint);letter-spacing:.06em;}
+  .envelope-wrap{
+    position:relative;z-index:10;display:inline-block;
+    margin:2.5rem 0 1.5rem;cursor:pointer;
+    perspective:900px;-webkit-tap-highlight-color:transparent;
+  }
+  .envelope-wrap:not(.opened){animation:envFloat 3.4s ease-in-out infinite;}
+  @keyframes envFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+  .envelope{
+    position:relative;width:290px;height:186px;
+    transform-style:preserve-3d;transition:transform .45s var(--ease);
+  }
+  .envelope-wrap:not(.opened):hover .envelope{transform:rotateY(-6deg) rotateX(2deg);}
+  .envelope-body{
+    position:relative;width:100%;height:100%;overflow:hidden;
+    background:
+      repeating-linear-gradient(0deg,transparent 0 7px,rgba(44,36,22,.022) 7px 8px),
+      linear-gradient(135deg,#eadcbf,#d3c4a0);
+    border:1px solid rgba(44,36,22,.22);border-radius:2px;
+    box-shadow:0 10px 34px -12px rgba(44,36,22,.55);
+  }
+  .envelope-body::after{
+    content:'';position:absolute;top:50%;left:0;right:0;bottom:0;
+    background:linear-gradient(to bottom right,transparent 49.5%,rgba(44,36,22,.09) 50%),
+               linear-gradient(to bottom left,transparent 49.5%,rgba(44,36,22,.09) 50%);
+  }
+  .envelope-flap{
+    position:absolute;top:0;left:0;right:0;height:50%;
+    transform-origin:top center;z-index:2;
+    background:linear-gradient(to bottom right,#e0d3b3,#c7b88a);
+    clip-path:polygon(0 0,100% 0,50% 92%);
+    transition:transform .55s var(--ease);
+  }
+  .envelope-seal{
+    position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
+    width:40px;height:40px;z-index:3;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 35% 30%,#cd4b39,#a52c20);
+    border-radius:50%;color:#f7ead2;
+    font-family:var(--font-hand);font-size:1.05rem;
+    box-shadow:0 3px 10px -2px rgba(168,50,40,.7),inset 0 0 0 2px rgba(247,234,210,.5);
+    transition:all .45s var(--ease);
+  }
+  .envelope-wrap.opened .envelope-flap{transform:rotateX(-160deg);}
+  .envelope-wrap.opened .envelope-seal{transform:translate(-50%,-50%) scale(0) rotate(30deg);opacity:0;}
+  .letter-out{
+    position:absolute;bottom:9%;left:50%;z-index:1;
+    width:248px;opacity:0;
+    transform:translate(-50%,0) rotate(0deg);
+    transition:transform .65s .3s var(--ease),opacity .45s .3s ease;
+  }
+  .envelope-wrap.opened .letter-out{transform:translate(-50%,-54%) rotate(-3deg);opacity:1;}
+  .letter-preview{
+    background:var(--paper);padding:1rem 1.15rem;
+    border:1px solid var(--line-soft);border-radius:var(--r);
+    box-shadow:var(--sh-2);text-align:left;font-size:.8rem;
+  }
+  .letter-preview .lp-book{font-size:.96rem;font-weight:700;margin-bottom:.35rem;color:var(--gold-deep);}
+  .letter-preview .lp-from{font-size:.74rem;color:var(--ink-faint);margin-bottom:.5rem;}
+  .letter-preview .lp-body{line-height:1.85;color:var(--ink-light);max-height:5rem;overflow:hidden;}
+  .scrap{
+    position:absolute;width:9px;height:9px;z-index:50;
+    background:var(--paper);border:1px solid var(--line-soft);border-radius:1px;
+    pointer-events:none;opacity:1;
+    transition:transform .85s ease-out,opacity .85s ease;
+  }
+  .scrap.fly{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0;}
+  .draw-actions{margin-top:.5rem;}
+  .draw-tip{font-size:.74rem;color:var(--ink-faint);margin-top:1rem;letter-spacing:.04em;line-height:1.8;}
+  .envelope-result{
+    display:none;max-width:580px;margin:2.5rem auto 0;
+    background:var(--paper);border:1px solid var(--line-soft);border-radius:var(--r);
+    padding:2rem clamp(1.2rem,5vw,2.4rem);
+    box-shadow:var(--sh-2);text-align:left;
+    animation:fadeUp .5s var(--ease);
+  }
+  .er-tag{
+    display:inline-block;padding:.22rem .8rem;margin-bottom:1.2rem;
+    background:var(--gold);color:#fff;border-radius:1px;
+    font-size:.72rem;letter-spacing:.18em;
+  }
+  .er-book{font-size:1.28rem;font-weight:700;margin-bottom:.35rem;}
+  .er-from{font-size:.8rem;color:var(--ink-faint);margin-bottom:1.1rem;}
+  .er-body{
+    font-size:.92rem;line-height:2.05;color:var(--ink-light);
+    white-space:pre-wrap;word-break:break-word;
+    padding-top:1.1rem;border-top:1px dashed var(--line);
+  }
+  .er-qq{
+    display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+    margin-top:1.2rem;font-size:.82rem;color:var(--seal);
+  }
+  .er-tip{font-size:.74rem;color:var(--ink-faint);}
+
+  /* ════ 图书角 ════ */
+  .corner-grid{
+    display:grid;
+    /* min(290px,100%) 保证 320px 小屏也不会横向溢出 */
+    grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr));
+    gap:1.4rem;max-width:1120px;margin:0 auto;padding:0 1.5rem 3rem;
+  }
+  .note-card{
+    position:relative;overflow:hidden;
+    background:var(--paper);border:1px solid var(--line-soft);border-radius:var(--r);
+    padding:1.6rem 1.5rem 1.5rem;
+    box-shadow:var(--sh-1);
+    transition:transform .25s var(--ease),box-shadow .25s var(--ease);
+    animation:fadeUp .45s var(--ease) both;
+  }
+  .note-card:hover{transform:translateY(-4px);box-shadow:var(--sh-2);}
+  .note-card::before{
+    content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+    background:linear-gradient(180deg,var(--gold),rgba(192,145,60,.25));
+  }
+  .nc-book{font-size:1.02rem;font-weight:700;margin-bottom:.35rem;padding-left:.55rem;}
+  .nc-author{font-weight:300;color:var(--ink-faint);font-size:.8rem;}
+  .nc-from{font-size:.76rem;color:var(--ink-faint);margin-bottom:.85rem;padding-left:.55rem;}
+  .nc-body{
+    padding-left:.55rem;font-size:.87rem;line-height:1.95;color:var(--ink-light);
+    overflow:hidden;white-space:pre-wrap;word-break:break-word;
+    display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;
+  }
+  .nc-body.expanded{display:block;-webkit-line-clamp:unset;}
+  .nc-book,.nc-from{overflow-wrap:anywhere;}
+  .nc-badge{
+    position:absolute;top:1.1rem;right:1.1rem;
+    padding:.16rem .5rem;border-radius:1px;
+    background:rgba(192,145,60,.13);color:var(--gold-deep);
+    border:1px solid rgba(192,145,60,.28);
+    font-size:.68rem;letter-spacing:.12em;
+  }
+  .empty-state{grid-column:1/-1;text-align:center;padding:5rem 1.5rem;color:var(--ink-faint);}
+  .empty-state .big{
+    font-family:var(--font-hand);font-size:3.4rem;line-height:1;
+    color:var(--gold);opacity:.55;margin-bottom:1.2rem;
+  }
+  .empty-state p{font-size:.9rem;}
+  .empty-state .empty-sub{font-size:.78rem;margin-top:.5rem;color:var(--ink-faint);opacity:.8;}
+  /* 骨架屏 */
+  .sk-card{animation:none;}
+  .sk{
+    height:.62rem;margin-bottom:.75rem;border-radius:2px;
+    background:linear-gradient(90deg,rgba(44,36,22,.06),rgba(44,36,22,.11),rgba(44,36,22,.06));
+    background-size:200% 100%;animation:shimmer 1.3s linear infinite;
+  }
+  .sk-card .sk:last-child{margin-bottom:0;}
+  @keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+
+  /* ════ 后台 ════ */
+  .admin-login{max-width:400px;margin:4rem auto;padding:0 1.5rem;}
+  .admin-panel{max-width:1120px;margin:0 auto;padding:3rem 1.5rem;}
+  .admin-header{
+    display:flex;justify-content:space-between;align-items:center;
+    gap:1rem;flex-wrap:wrap;
+    margin-bottom:2rem;padding-bottom:1.1rem;
+    border-bottom:1px solid var(--line);
+  }
+  .admin-header h2{font-family:var(--font-hand);font-weight:400;font-size:1.75rem;}
+  .admin-header-actions{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap;}
+  .admin-stats{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
+  .stat-box{
+    flex:1;min-width:120px;padding:1.1rem 1rem;text-align:center;
+    background:var(--paper);border:1px solid var(--line-soft);border-radius:var(--r);
+    box-shadow:var(--sh-1);
+    transition:transform .22s var(--ease),box-shadow .22s var(--ease);
+  }
+  .stat-box:hover{transform:translateY(-3px);box-shadow:var(--sh-2);}
+  .stat-box .sv{
+    font-family:var(--font-hand);font-size:2.1rem;line-height:1.1;
+    color:var(--gold-deep);font-variant-numeric:tabular-nums;
+  }
+  .stat-box .sl{font-size:.75rem;color:var(--ink-faint);margin-top:.25rem;letter-spacing:.06em;}
+  .admin-toolbar{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+  .admin-toolbar input{
+    flex:1;min-width:15rem;padding:.6rem .9rem;
+    background:#fdfbf6;border:1px solid var(--line);border-radius:var(--r);
+    font-family:var(--font-body);font-size:1rem;color:var(--ink);
+    outline:none;transition:border-color .2s,box-shadow .2s;
+  }
+  .admin-toolbar input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(192,145,60,.14);}
+  .admin-toolbar-tip{font-size:.76rem;color:var(--ink-faint);flex:none;}
+  .table-scroll{
+    overflow-x:auto;background:var(--paper);
+    border:1px solid var(--line-soft);border-radius:var(--r);box-shadow:var(--sh-1);
+  }
+  .admin-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+  .admin-table th{
+    text-align:left;padding:.75rem 1rem;white-space:nowrap;
+    background:var(--ink);color:var(--gold-light);
+    font-weight:400;font-size:.78rem;letter-spacing:.12em;
+  }
+  .admin-table td{padding:.85rem 1rem;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  .admin-table tbody tr:last-child td{border-bottom:none;}
+  .admin-table tbody tr:hover td{background:rgba(192,145,60,.045);}
+  .admin-table .col-no{width:3rem;}
+  .admin-table .col-name{width:5.5rem;}
+  .admin-table .col-book{width:9rem;}
+  .admin-table .col-qq{width:6rem;}
+  .admin-table .col-status{width:5rem;}
+  .admin-table .col-actions{width:13.5rem;}
+  .td-no{color:var(--ink-faint);font-variant-numeric:tabular-nums;}
+  .td-author{display:block;font-size:.75rem;color:var(--ink-faint);font-weight:400;}
+  .td-body{max-width:22rem;color:var(--ink-light);line-height:1.8;}
+  .td-qq{color:var(--ink-faint);font-variant-numeric:tabular-nums;}
+  .td-actions{white-space:nowrap;}
+  .td-empty{text-align:center;padding:2.5rem 1rem;color:var(--ink-faint);}
+  .status-badge{
+    display:inline-block;padding:.18rem .55rem;border-radius:1px;
+    font-size:.7rem;letter-spacing:.08em;white-space:nowrap;
+  }
+  .status-pending{background:rgba(192,145,60,.1);color:var(--gold-deep);border:1px solid rgba(192,145,60,.3);}
+  .status-approved{background:rgba(47,122,74,.1);color:var(--green);border:1px solid rgba(47,122,74,.3);}
+  .status-rejected{background:rgba(168,50,40,.1);color:var(--red);border:1px solid rgba(168,50,40,.3);}
+
+  /* ════ 页脚 ════ */
+  footer{
+    margin-top:4rem;padding:2.6rem 1.5rem 3.2rem;text-align:center;
+    border-top:1px solid var(--line-soft);
+    color:var(--ink-faint);font-size:.8rem;
+  }
+  .foot-orn{color:var(--gold);font-size:.95rem;margin-bottom:.7rem;letter-spacing:.4em;text-indent:.4em;opacity:.8;}
+  footer p{line-height:2;}
+  .foot-sub{font-size:.71rem;opacity:.85;}
+
+  /* ════ 提示 / 横幅 ════ */
+  .offline-banner{
+    position:fixed;top:var(--nav-h);left:0;right:0;z-index:99;
+    background:var(--red);color:#fff;text-align:center;
+    padding:.5rem 1rem;font-size:.8rem;letter-spacing:.04em;
+    transform:translateY(-100%);transition:transform .32s var(--ease);
+    box-shadow:0 3px 12px rgba(168,50,40,.32);
+  }
+  .offline-banner.show{transform:translateY(0);}
+  .toast-stack{
+    position:fixed;right:1.5rem;bottom:1.5rem;z-index:999;
+    display:flex;flex-direction:column;gap:.6rem;align-items:flex-end;
+    pointer-events:none;
+  }
+  .toast{
+    pointer-events:auto;cursor:pointer;
+    max-width:min(22rem,calc(100vw - 3rem));
+    padding:.75rem 1.3rem;border-radius:var(--r);
+    background:var(--ink);color:var(--gold-light);
+    font-size:.87rem;letter-spacing:.04em;line-height:1.6;
+    box-shadow:0 10px 28px -12px rgba(44,36,22,.85);
+    animation:toastIn .3s var(--ease);
+  }
+  .toast.hide{opacity:0;transform:translateX(24px);transition:all .26s var(--ease);}
+  @keyframes toastIn{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:none;}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+
+  /* ════ 响应式 ════ */
+  @media(max-width:900px){
+    .hero-mark{display:none;}
+  }
+  @media(max-width:760px){
+    .float-char{display:none;}
+    .home-cards{padding-bottom:3.5rem;}
+  }
+  @media(max-width:640px){
+    nav{padding:0 1rem;}
+    .nav-logo{font-size:1.18rem;letter-spacing:2px;}
+    .nav-burger{display:block;}
+    .nav-tabs{
+      position:absolute;top:var(--nav-h);left:0;right:0;
+      display:none;flex-direction:column;gap:0;
+      background:var(--ink);box-shadow:0 14px 26px -10px rgba(44,36,22,.7);
+    }
+    .nav-tabs.open{display:flex;animation:fadeUp .25s var(--ease);}
+    .nav-tab{
+      width:100%;height:3rem;padding:0;
+      border-bottom:1px solid rgba(250,246,238,.07);
+    }
+    .nav-tab::after{left:0;bottom:auto;top:50%;transform:translateY(-50%);width:2px;height:0;}
+    .nav-tab.active::after{width:2px;height:1.1rem;}
+    .paper-card{padding:1.6rem 1.2rem;}
+    .envelope{width:246px;height:158px;}
+    .letter-out{width:212px;}
+    .hero-seal{font-size:.95rem;padding:.42rem .45rem;}
+    .er-body{font-size:.9rem;}
+    .toast-stack{left:1rem;right:1rem;align-items:stretch;}
+    .toast{max-width:none;text-align:center;}
+
+    /* 后台表格 → 卡片，手机上不用左右拖 */
+    .table-scroll{overflow:visible;background:none;border:none;box-shadow:none;}
+    .admin-table,.admin-table tbody,.admin-table tr,.admin-table td{display:block;width:100%;}
+    .admin-table thead{display:none;}
+    .admin-table tr{
+      margin-bottom:1rem;padding:.4rem 0;
+      background:var(--paper);border:1px solid var(--line-soft);border-radius:var(--r);
+      box-shadow:var(--sh-1);
+    }
+    .admin-table td{
+      display:flex;gap:.8rem;align-items:flex-start;
+      padding:.5rem 1rem;border-bottom:none;
+    }
+    .admin-table td::before{
+      content:attr(data-label);flex:0 0 3.2rem;
+      font-size:.74rem;color:var(--ink-faint);line-height:1.9;
+    }
+    .admin-table .td-body{max-width:none;}
+    .admin-table .td-actions{flex-wrap:wrap;padding-bottom:.8rem;}
+    .admin-table .td-empty{display:block;text-align:center;padding:2rem 1rem;}
+    .admin-table .td-empty::before{display:none;}
+    .admin-table tr:hover td{background:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+    html{scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="nav-logo" onclick="goTo('home')" aria-label="回到首页">一纸书缘</button>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab" data-page="home" onclick="goTo('home')">首页</button>
+    <button class="nav-tab" data-page="submit" onclick="goTo('submit')">投递心得</button>
+    <button class="nav-tab" data-page="draw" onclick="goTo('draw')">拆信封</button>
+    <button class="nav-tab" data-page="corner" onclick="goTo('corner')">图书角</button>
+    <button class="nav-tab" data-page="admin" onclick="goTo('admin')">后台</button>
+  </div>
+  <button class="nav-burger" id="navBurger" aria-label="菜单" aria-expanded="false" onclick="toggleMenu()">☰</button>
+</nav>
+
+<div class="offline-banner" id="offlineBanner" role="status">⚠ 与服务器的连接断开，页面可能无法加载最新内容，提交请稍后重试</div>
+
+<!-- ════════════════ HOME ════════════════ -->
+<div id="page-home" class="page active">
+  <section class="home-hero">
+    <span class="hero-mark" aria-hidden="true">书</span>
+    <span class="float-char fc1" aria-hidden="true">缘</span>
+    <span class="float-char fc2" aria-hidden="true">信</span>
+    <span class="float-char fc3" aria-hidden="true">光</span>
+    <p class="hero-kicker">敷天图书协会 · 本学期特别活动</p>
+    <div class="hero-title-row">
+      <h1 class="hero-title">一纸书缘</h1>
+      <span class="hero-seal" aria-hidden="true">书<br>缘</span>
+    </div>
+    <p class="hero-desc">书中的光，照见同频的人。<br>写下你与一本书的故事，投入信封，<br>也许下一个拆开它的人，就是那个与你同频的人。</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="goTo('submit')">投递我的读书心得</button>
+      <button class="btn-ghost" onclick="goTo('corner')">先看看图书角</button>
+    </div>
+  </section>
+  <section class="home-cards">
+    <div class="info-card">
+      <div class="num">壹</div>
+      <h3>写下你的心得</h3>
+      <p>填写姓名、书名与阅读感悟，一封「精神信笺」由此诞生。</p>
+    </div>
+    <div class="info-card">
+      <div class="num">贰</div>
+      <h3>随机拆开信封</h3>
+      <p>系统随机为你匹配一份他人的读书心得，邂逅一段未知的书缘。</p>
+    </div>
+    <div class="info-card">
+      <div class="num">叁</div>
+      <h3>走进图书角</h3>
+      <p>经社团审核的优质心得将在图书角展示，供所有人阅读交流。</p>
+    </div>
+  </section>
+</div>
+
+<!-- ════════════════ SUBMIT ════════════════ -->
+<div id="page-submit" class="page">
+  <div class="page-wrap">
+    <div class="page-heading">
+      <span class="en">SUBMIT · 投递心得</span>
+      <h2>写下你与书的故事</h2>
+    </div>
+    <div class="paper-card">
+      <div class="form-row">
+        <label for="f-name">你的姓名</label>
+        <input type="text" id="f-name" placeholder="真实姓名或昵称均可" maxlength="20" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label for="f-book">推荐书名</label>
+        <input type="text" id="f-book" placeholder="请填写完整书名" maxlength="50">
+      </div>
+      <div class="form-row">
+        <label for="f-author">作者 <span class="opt">选填</span></label>
+        <input type="text" id="f-author" placeholder="书籍作者" maxlength="30">
+      </div>
+      <div class="form-row">
+        <label for="f-content">读书心得</label>
+        <textarea id="f-content" placeholder="写下这本书触动你的地方，可以是一段故事、一句话、一种感受……"></textarea>
+        <div class="hint">
+          <span>建议 100 字以上，越用心越容易被选入图书角</span>
+          <span class="count" id="content-count">0 字</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="f-qq">QQ号 <span class="opt">选填，方便结识同频的朋友</span></label>
+        <input type="text" id="f-qq" placeholder="留下QQ号，让书缘成为真缘" maxlength="12" inputmode="numeric">
+        <div class="hint">审核通过后，昵称、书名、心得会公开；选填的 QQ 号也会在拆信中公开。可以使用昵称，不希望公开联系方式就留空。需要撤回请联系社团管理员。</div>
+      </div>
+      <button class="btn-submit" id="btnSubmitNote" onclick="submitNote()">封入信封，投递心得</button>
+      <div class="success-msg" id="submit-success" role="status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ DRAW ════════════════ -->
+<div id="page-draw" class="page">
+  <div class="envelope-area">
+    <div class="page-heading" style="margin-bottom:0.5rem">
+      <span class="en">DRAW · 拆信封</span>
+      <h2>随机拆开一封来自陌生人的信</h2>
+    </div>
+    <p class="draw-count" id="draw-count">加载中…</p>
+
+    <div class="envelope-wrap" id="envWrap" role="button" tabindex="0" aria-label="拆开信封"
+         onclick="openEnvelope()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEnvelope();}">
+      <div class="envelope">
+        <div class="envelope-body"></div>
+        <div class="envelope-flap"></div>
+        <div class="envelope-seal">缘</div>
+        <div class="letter-out">
+          <div class="letter-preview" id="letterPreview">
+            <div class="lp-book" id="lp-book">—</div>
+            <div class="lp-from" id="lp-from">—</div>
+            <div class="lp-body" id="lp-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="draw-actions">
+      <button class="btn-draw" onclick="reshuffleEnvelope()">换一封</button>
+    </div>
+    <p class="draw-tip">点击信封或「换一封」，随机遇见另一段书缘 · 仅展示已审核通过的心得</p>
+
+    <div class="envelope-result" id="envelopeResult">
+      <span class="er-tag">书缘 · 来自陌生人的推荐</span>
+      <div class="er-book" id="er-book"></div>
+      <div class="er-from" id="er-from"></div>
+      <div class="er-body" id="er-body"></div>
+      <div class="er-qq" id="er-qq"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ CORNER ════════════════ -->
+<div id="page-corner" class="page">
+  <div class="page-wrap page-wrap--wide page-wrap--tight">
+    <div class="page-heading">
+      <span class="en">CORNER · 图书角</span>
+      <h2>那些打动人心的文字</h2>
+      <button class="btn-ghost" onclick="renderCorner(pageSeq)">刷新心得</button>
+    </div>
+  </div>
+  <div class="corner-grid" id="cornerGrid"></div>
+</div>
+
+<!-- ════════════════ ADMIN ════════════════ -->
+<div id="page-admin" class="page">
+
+  <!-- LOGIN -->
+  <div class="admin-login" id="adminLogin">
+    <div class="page-heading">
+      <span class="en">ADMIN · 后台管理</span>
+      <h2>社团成员登录</h2>
+    </div>
+    <div class="paper-card">
+      <div class="form-row">
+        <label for="admin-pwd">管理员密码</label>
+        <input type="password" id="admin-pwd" placeholder="请输入密码" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <button class="btn-submit" id="btnAdminLogin" onclick="adminLogin()">登 录</button>
+      <div class="hint hint--center" id="adminPwdHint"></div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div class="admin-panel" id="adminPanel" style="display:none">
+    <div class="admin-header">
+      <h2>后台管理</h2>
+      <div class="admin-header-actions">
+        <button class="btn-export" onclick="refreshAdmin(pageSeq, true)">刷新投递</button>
+        <button class="btn-export" onclick="exportData()">导出 JSON</button>
+        <button class="btn-logout" onclick="adminLogout()">退出登录</button>
+      </div>
+    </div>
+    <div class="admin-stats">
+      <div class="stat-box"><div class="sv" id="stat-total">0</div><div class="sl">总投递数</div></div>
+      <div class="stat-box"><div class="sv" id="stat-pending">0</div><div class="sl">待审核</div></div>
+      <div class="stat-box"><div class="sv" id="stat-approved">0</div><div class="sl">已入图书角</div></div>
+      <div class="stat-box"><div class="sv" id="stat-rejected">0</div><div class="sl">已拒绝</div></div>
+    </div>
+
+    <div class="admin-toolbar">
+      <input type="search" id="adminSearch" placeholder="搜索姓名 / 书名 / 心得 / QQ…" oninput="refreshAdmin()">
+      <span class="admin-toolbar-tip" id="adminFilterTip"></span>
+    </div>
+
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th class="col-no">#</th>
+            <th class="col-name">姓名</th>
+            <th class="col-book">书名</th>
+            <th>心得摘要</th>
+            <th class="col-qq">QQ</th>
+            <th class="col-status">状态</th>
+            <th class="col-actions">操作</th>
+          </tr>
+        </thead>
+        <tbody id="adminTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="foot-orn" aria-hidden="true">❖</div>
+  <p>敷天图书协会 × 北科天院图书馆 · 特别活动</p>
+  <p class="foot-sub">书中的光，照见同频的人 · 心得审核通过后公开，QQ 号选填</p>
+</footer>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────
+// 双模式：http(s) 下走服务器 API（多人共享）；file:// 双击打开时回退 localStorage（本地演示）
+const IS_REMOTE = /^https?:$/.test(location.protocol);
+const API = IS_REMOTE ? '' : null;
+const ADMIN_PASSWORD = 'admin888'; // 仅本地演示模式使用；远程模式由服务器验证密码
+const STORAGE_KEY = 'yizishuyu_notes';
+const SESSION_KEY = 'yzsy_token';
+const PAGES = ['home', 'submit', 'draw', 'corner', 'admin'];
+
+// 隐私模式/禁用存储时 sessionStorage 可能直接抛错，包一层避免整个脚本挂掉
+const ss = {
+  get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { sessionStorage.removeItem(k); } catch (e) {} }
+};
+
+let adminToken = ss.get(SESSION_KEY); // 远程=token，本地='local'
+let isOnline = true;
+let currentPage = 'home';
+let pageSeq = 0; // 页面切换序号，用于丢弃过期的异步响应
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ── 本地模式存储（file:// 演示用）──
+function loadLocal() {
+  try { const notes = JSON.parse(localStorage.getItem(STORAGE_KEY)); return Array.isArray(notes) ? notes : []; }
+  catch(e) { return []; }
+}
+function saveLocal(notes) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+// ── 远程 API 请求 ──
+async function apiFetch(path, opts = {}) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(API + path, Object.assign({}, opts, {
+      signal: ctrl.signal,
+      headers: Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {})
+    }));
+    let body = {};
+    try { body = await res.json(); } catch (e) { throw new Error('服务器响应异常，请稍后重试'); }
+    if (!res.ok) {
+      if (res.status === 401 && path.indexOf('/api/admin') === 0) forceLogout();
+      throw new Error(body.error || '请求失败，请稍后再试');
+    }
+    setOnline(true);
+    return body;
+  } catch (e) {
+    if (e.name === 'AbortError') { setOnline(false); throw new Error('请求超时，请稍后再试'); }
+    if (e instanceof TypeError) { // fetch 网络层失败（连不上服务器）
+      setOnline(false);
+      throw new Error('无法连接服务器，请检查网络后重试');
+    }
+    throw e; // HTTP 状态错误（已有中文消息），不属于离线
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// ── 统一数据接口（双模式分支）──
+const store = {
+  corner: () => IS_REMOTE
+    ? apiFetch('/api/notes?scope=corner')
+    : Promise.resolve(loadLocal().filter(n => n.status === 'approved')),
+  pool: () => IS_REMOTE
+    ? apiFetch('/api/draw/pool')
+    : Promise.resolve(loadLocal().filter(n => n.status === 'approved')),
+  submit: d => IS_REMOTE
+    ? apiFetch('/api/notes', { method: 'POST', body: JSON.stringify(d) })
+    : Promise.resolve((() => {
+        const ns = loadLocal();
+        ns.push(Object.assign({ id: Date.now(), status: 'pending', time: new Date().toLocaleString('zh-CN') }, d));
+        saveLocal(ns);
+        return { ok: true };
+      })()),
+  login: pw => IS_REMOTE
+    ? apiFetch('/api/login', { method: 'POST', body: JSON.stringify({ password: pw }) })
+    : Promise.resolve(pw === ADMIN_PASSWORD ? { token: 'local' } : null),
+  adminList: () => IS_REMOTE
+    ? apiFetch('/api/admin/notes', { headers: { Authorization: 'Bearer ' + adminToken } })
+    : Promise.resolve(loadLocal()),
+  setStatus: (id, st) => IS_REMOTE
+    ? apiFetch('/api/admin/notes/' + id + '/status', { method: 'POST', body: JSON.stringify({ status: st }), headers: { Authorization: 'Bearer ' + adminToken } })
+    : Promise.resolve((() => { const ns = loadLocal(); const n = ns.find(x => x.id === id); if (n) { n.status = st; saveLocal(ns); } return { ok: true }; })()),
+  remove: id => IS_REMOTE
+    ? apiFetch('/api/admin/notes/' + id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + adminToken } })
+    : Promise.resolve((() => { saveLocal(loadLocal().filter(x => x.id !== id)); return { ok: true }; })())
+};
+
+// ── 离线横幅 ──
+let offlineTimer = null;
+function setOnline(v) {
+  if (isOnline === v) return;
+  isOnline = v;
+  const banner = document.getElementById('offlineBanner');
+  if (banner) banner.classList.toggle('show', !v);
+  clearTimeout(offlineTimer);
+  if (!v && IS_REMOTE) {
+    offlineTimer = setTimeout(async function poll() {
+      if (isOnline) return;
+      try { await apiFetch('/api/health'); }
+      catch (e) { if (!isOnline) offlineTimer = setTimeout(poll, 20000); }
+    }, 20000);
+  }
+}
+function forceLogout() {
+  adminToken = null;
+  ss.del(SESSION_KEY);
+  isLoggedIn = false;
+  adminCache = null;
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+  toast('登录已过期，请重新登录');
+}
+
+// ── NAV / 路由 ───────────────────────────────────────────────
+const navTabs = document.getElementById('navTabs');
+const navBurger = document.getElementById('navBurger');
+
+function goTo(id, skipHash) {
+  if (PAGES.indexOf(id) === -1) id = 'home';
+  currentPage = id;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    const on = t.dataset.page === id;
+    t.classList.toggle('active', on);
+    if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+  });
+  document.getElementById('page-' + id).classList.add('active');
+  closeMenu();
+  if (!skipHash && location.hash !== '#' + id) { try { location.hash = id; } catch (e) {} } // 支持刷新/返回键/分享直达
+  window.scrollTo({ top: 0 });
+  const seq = ++pageSeq;
+  if (id === 'corner') renderCorner(seq);
+  if (id === 'draw') initDraw(seq);
+  if (id === 'admin') refreshAdmin(seq, true); // 进后台时强制拉新数据
+}
+
+// 浏览器前进/后退 → 跟随 hash 切页（skipHash 避免再次写入历史）
+// hash 为空（首次进入后按返回键）或无法识别时回首页，保证返回键始终有反应
+window.addEventListener('hashchange', () => {
+  const id = location.hash.replace(/^#/, '');
+  const target = PAGES.indexOf(id) !== -1 ? id : 'home';
+  if (target !== currentPage) goTo(target, true);
+});
+
+function toggleMenu() {
+  const open = navTabs.classList.toggle('open');
+  navBurger.textContent = open ? '✕' : '☰';
+  navBurger.setAttribute('aria-expanded', open);
+}
+function closeMenu() {
+  navTabs.classList.remove('open');
+  navBurger.textContent = '☰';
+  navBurger.setAttribute('aria-expanded', 'false');
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+const contentTa = document.getElementById('f-content');
+const contentCount = document.getElementById('content-count');
+
+function updateCount() {
+  const len = contentTa.value.trim().length;
+  contentCount.textContent = len + ' 字';
+  contentCount.classList.toggle('ok', len >= 100 && len <= 2000);
+  contentCount.classList.toggle('warn', len > 2000);
+  if (len > 2000) contentCount.textContent = len + ' 字 · 超出 2000';
+}
+contentTa.addEventListener('input', updateCount);
+
+async function submitNote() {
+  const name    = document.getElementById('f-name').value.trim();
+  const book    = document.getElementById('f-book').value.trim();
+  const author  = document.getElementById('f-author').value.trim();
+  const content = contentTa.value.trim();
+  const qq      = document.getElementById('f-qq').value.trim();
+
+  if (!name) { toast('请填写你的姓名 😊'); return; }
+  if (name.length > 20) { toast('姓名太长啦，20 字以内'); return; }
+  if (!book) { toast('请填写推荐的书名 📖'); return; }
+  if (content.length < 20) { toast('心得内容至少写 20 字哦，多写一点吧！'); return; }
+  if (content.length > 2000) { toast('心得太长啦，2000 字以内'); return; }
+  if (qq && !/^\d{5,12}$/.test(qq)) { toast('QQ号看起来不太对哦，请检查一下～'); return; }
+
+  const btn = document.getElementById('btnSubmitNote');
+  if (btn.disabled) return;
+  const label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '投递中…';
+  try {
+    await store.submit({ name, book, author, content, qq });
+    // 提交成功才清空表单
+    ['f-name', 'f-book', 'f-author', 'f-content', 'f-qq'].forEach(id => document.getElementById(id).value = '');
+    updateCount();
+    const msg = document.getElementById('submit-success');
+    msg.textContent = '✦ 你的心得已成功投入信箱！管理员审核通过后，其他书友就能拆到这封信啦～';
+    msg.style.display = 'block';
+    msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    clearTimeout(msg._t);
+    msg._t = setTimeout(() => { msg.style.display = 'none'; }, 6000);
+  } catch (e) {
+    toast(e.message || '提交失败，请稍后再试'); // 失败保留表单，用户辛苦写的内容不丢失
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+
+// ── DRAW ──────────────────────────────────────────────────────
+let drawPool = [];
+let currentDraw = null;
+let lastDrawId = null;
+let drawRequest = 0;
+let drawAnimation = 0;
+let drawLoading = false;
+
+async function initDraw(seq, background = false) {
+  const request = ++drawRequest;
+  if (!background) { drawLoading = true; currentDraw = null; drawAnimation++; }
+  // 审核后公开：拆信池只含 approved（服务器/localStorage 均已过滤，此处不再过滤）
+  const all = await store.pool().catch(() => null);
+  if (seq !== pageSeq || request !== drawRequest) return;
+  drawLoading = false;
+  if (!Array.isArray(all)) {
+    drawPool = []; currentDraw = null; drawAnimation++;
+    document.getElementById('envelopeResult').style.display = 'none';
+    document.getElementById('draw-count').textContent = '加载失败，请点击「换一封」重试';
+    if (!background) toast('加载失败，请重试');
+    return;
+  }
+  drawPool = all;
+  const ct = document.getElementById('draw-count');
+  ct.textContent = drawPool.length > 0
+    ? `当前共有 ${drawPool.length} 封信等待被拆开`
+    : '暂无已审核通过的心得，可以先去投递或稍后再来';
+
+  if (background && currentDraw && drawPool.some(n => n.id === currentDraw.id)) return;
+
+  const wrap = document.getElementById('envWrap');
+  drawAnimation++;
+  wrap.classList.remove('opened');
+  document.getElementById('envelopeResult').style.display = 'none';
+  pickRandom();
+}
+
+function pickRandom() {
+  const showEmpty = () => {
+    currentDraw = null;
+    document.getElementById('lp-book').textContent = '—';
+    document.getElementById('lp-from').textContent = '—';
+    document.getElementById('lp-body').textContent = '';
+  };
+  if (drawPool.length === 0) { showEmpty(); return; }
+  let pool = drawPool;
+  if (pool.length > 1 && lastDrawId != null) {
+    const rest = pool.filter(n => n.id !== lastDrawId); // 尽量不连续拆到同一封
+    if (rest.length) pool = rest;
+  }
+  currentDraw = pool[Math.floor(Math.random() * pool.length)];
+  if (!currentDraw) { showEmpty(); return; }
+  lastDrawId = currentDraw.id;
+  const text = String(currentDraw.content || '');
+  document.getElementById('lp-book').textContent = String(currentDraw.book || '—');
+  document.getElementById('lp-from').textContent = '来自：' + String(currentDraw.name || '匿名书友');
+  document.getElementById('lp-body').textContent = text.length > 60 ? text.slice(0, 60) + '…' : text;
+}
+
+function burstParticles() {
+  const area = document.querySelector('.envelope-area');
+  const env = document.getElementById('envWrap').getBoundingClientRect();
+  const ar = area.getBoundingClientRect();
+  const cx = env.left - ar.left + env.width / 2;
+  const cy = env.top - ar.top + env.height * 0.4;
+  const colors = ['#f5f0e8', '#e8c97a', '#c0392b', '#c8973a'];
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('span');
+    s.className = 'scrap';
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 45 + Math.random() * 75;
+    s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+    s.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+    s.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    s.style.background = colors[i % colors.length];
+    s.style.left = cx + 'px';
+    s.style.top = cy + 'px';
+    area.appendChild(s);
+    requestAnimationFrame(() => requestAnimationFrame(() => s.classList.add('fly')));
+    setTimeout(() => s.remove(), 900);
+  }
+}
+
+function openEnvelope() {
+  if (drawLoading) { toast('信件加载中，请稍等'); return; }
+  if (!currentDraw) { toast('暂无心得可拆，快去投递吧！'); return; }
+  const wrap = document.getElementById('envWrap');
+  if (wrap.classList.contains('opened')) { reshuffleEnvelope(); return; } // 再拆一封
+  wrap.classList.add('opened');
+  const animation = ++drawAnimation;
+  const note = currentDraw;
+  const seq = pageSeq;
+  setTimeout(() => { if (animation === drawAnimation && seq === pageSeq) burstParticles(); }, 320);
+  setTimeout(() => {
+    if (animation !== drawAnimation || seq !== pageSeq || currentDraw !== note) return;
+    const res = document.getElementById('envelopeResult');
+    res.style.display = 'block';
+    document.getElementById('er-book').textContent = '《' + String(currentDraw.book || '') + '》' +
+      (currentDraw.author ? ' · ' + currentDraw.author : '');
+    document.getElementById('er-from').textContent = '来自：' + String(currentDraw.name || '匿名书友') +
+      (currentDraw.time ? ' · ' + currentDraw.time : '');
+    document.getElementById('er-body').textContent = String(currentDraw.content || '');
+    const qqEl = document.getElementById('er-qq');
+    qqEl.innerHTML = currentDraw.qq
+      ? `💬 TA的QQ：<strong>${esc(currentDraw.qq)}</strong>
+         <button class="btn-copy" data-qq="${esc(currentDraw.qq)}" onclick="copyQQ(this)">复制</button>
+         <span class="er-tip">欢迎去打个招呼～</span>`
+      : '';
+    res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 700);
+}
+
+async function reshuffleEnvelope() {
+  if (drawLoading) return;
+  drawAnimation++;
+  const wrap = document.getElementById('envWrap');
+  wrap.classList.remove('opened');
+  document.getElementById('envelopeResult').style.display = 'none';
+  await initDraw(pageSeq);
+}
+
+async function copyQQ(btn) {
+  const copied = await copyText(btn.dataset.qq);
+  toast(copied ? 'QQ号已复制，去加个好友吧～' : '复制失败，请长按 QQ 号手动复制');
+}
+async function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try { await navigator.clipboard.writeText(t); return true; } catch (e) {}
+  }
+  return fallbackCopy(t);
+}
+function fallbackCopy(t) {
+  const ta = document.createElement('textarea');
+  ta.value = t;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  let copied = false;
+  try { copied = document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+  return copied;
+}
+
+// ── CORNER ────────────────────────────────────────────────────
+function emptyState(icon, text, sub) {
+  return `<div class="empty-state">
+    <div class="big" aria-hidden="true">${icon}</div>
+    <p>${text}</p>${sub ? `<p class="empty-sub">${sub}</p>` : ''}
+  </div>`;
+}
+
+function cornerSkeleton() {
+  const grid = document.getElementById('cornerGrid');
+  grid.innerHTML = new Array(3).fill(0).map(() => `
+    <div class="note-card sk-card" aria-hidden="true">
+      <div class="sk" style="width:55%;height:1.05rem"></div>
+      <div class="sk" style="width:35%;height:.75rem"></div>
+      <div class="sk"></div><div class="sk"></div><div class="sk" style="width:70%"></div>
+    </div>`).join('');
+}
+
+let cornerRequest = 0;
+async function renderCorner(seq, background = false) {
+  const request = ++cornerRequest;
+  // 慢响应才显示骨架屏，快响应不闪
+  const slow = background ? null : setTimeout(() => { if (seq === pageSeq && request === cornerRequest) cornerSkeleton(); }, 250);
+  const approved = await store.corner().catch(() => null);
+  clearTimeout(slow);
+  if (seq !== pageSeq || request !== cornerRequest) return;
+  const grid = document.getElementById('cornerGrid');
+  if (approved === null || !Array.isArray(approved)) {
+    grid.innerHTML = emptyState('！', '加载失败，请检查网络后重试');
+    toast('加载失败，请刷新重试');
+    return;
+  }
+  if (approved.length === 0) {
+    grid.innerHTML = emptyState('书', '图书角还是空的', '投递你的读书心得，成为第一位入驻的书友');
+    return;
+  }
+  const expandedIds = new Set(Array.from(grid.querySelectorAll('.nc-body.expanded')).map(body => body.parentElement.dataset.noteId));
+  grid.innerHTML = approved.map((n, i) => {
+    const authorHtml = n.author ? `<span class="nc-author">/ ${esc(n.author)}</span>` : '';
+    const expanded = expandedIds.has(String(n.id));
+    return `
+    <article class="note-card" data-note-id="${Number(n.id)}" style="animation-delay:${background ? 0 : Math.min(i, 12) * 0.06}s">
+      <span class="nc-badge">精选</span>
+      <h3 class="nc-book">《${esc(n.book)}》${authorHtml}</h3>
+      <p class="nc-from">${esc(n.name)}${n.time ? ' · ' + esc(n.time) : ''}</p>
+      <p class="nc-body${expanded ? ' expanded' : ''}">${esc(n.content)}</p>
+      <button class="btn-ghost" aria-expanded="${expanded}" onclick="toggleNote(this)">${expanded ? '收起全文' : '阅读全文'}</button>
+    </article>`;
+  }).join('');
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────
+function toggleNote(button) {
+  const body = button.previousElementSibling;
+  const expanded = body.classList.toggle('expanded');
+  button.setAttribute('aria-expanded', String(expanded));
+  button.textContent = expanded ? '收起全文' : '阅读全文';
+}
+
+let isLoggedIn = false;
+
+async function adminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  const btn = document.getElementById('btnAdminLogin');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = '登录中…';
+  try {
+    const res = await store.login(pwd);
+    if (res && res.token) {
+      adminToken = res.token;
+      ss.set(SESSION_KEY, adminToken);
+      isLoggedIn = true;
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      document.getElementById('admin-pwd').value = '';
+      await refreshAdmin(undefined, true);
+    } else {
+      toast('密码错误，请重试');
+    }
+  } catch (e) {
+    toast(e.message || '登录失败，请稍后再试');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '登 录';
+  }
+}
+
+async function adminLogout() {
+  if (IS_REMOTE && adminToken) {
+    try { await apiFetch('/api/admin/logout', { method: 'POST', headers: { Authorization: 'Bearer ' + adminToken } }); }
+    catch (e) { toast('退出未完成，请检查网络后重试'); return; }
+  }
+  isLoggedIn = false;
+  adminToken = null;
+  adminCache = null;
+  ss.del(SESSION_KEY);
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('admin-pwd').value = '';
+  document.getElementById('adminSearch').value = '';
+}
+
+const STATUS_META = {
+  pending:  ['待审核', 'status-pending'],
+  approved: ['已入选', 'status-approved'],
+  rejected: ['已拒绝', 'status-rejected']
+};
+
+let adminCache = null; // 后台全量数据缓存：搜索过滤在本地跑，不逐键请求服务器
+let adminRequest = 0;
+
+// 老数据可能没有 status 字段，一律按"待审核"处理，保证统计数字对得上
+function statusOf(n) {
+  return n && (n.status === 'approved' || n.status === 'rejected') ? n.status : 'pending';
+}
+
+async function refreshAdmin(seq, force) {
+  if (!isLoggedIn) return;
+  const tbody = document.getElementById('adminTableBody');
+  if (!adminCache || force) {
+    const request = ++adminRequest;
+    const token = adminToken;
+    if (!adminCache) tbody.innerHTML = '<tr><td colspan="7" class="td-empty">加载中…</td></tr>';
+    const data = await store.adminList().catch(e => { toast(e.message || '加载失败'); return null; });
+    if (!isLoggedIn || token !== adminToken || request !== adminRequest) return;
+    if (seq !== undefined && seq !== pageSeq) return; // 页面已切换，丢弃过期响应
+    if (!Array.isArray(data)) { tbody.innerHTML = '<tr><td colspan="7" class="td-empty">加载失败，请重试</td></tr>'; return; }
+    adminCache = data;
+  }
+  renderAdminTable(adminCache);
+}
+
+function renderAdminTable(notes) {
+  const openIds = new Set(Array.from(document.querySelectorAll('#adminTableBody details[open]')).map(detail => detail.closest('tr').dataset.noteId));
+  const counts = { pending: 0, approved: 0, rejected: 0 };
+  notes.forEach(n => { counts[statusOf(n)]++; });
+  document.getElementById('stat-total').textContent = notes.length;
+  document.getElementById('stat-pending').textContent = counts.pending;
+  document.getElementById('stat-approved').textContent = counts.approved;
+  document.getElementById('stat-rejected').textContent = counts.rejected;
+
+  const kw = document.getElementById('adminSearch').value.trim().toLowerCase();
+  const rows = [];
+  [...notes].reverse().forEach((n, i) => { // 最新提交排在最前，编号沿用总表序号
+    const hay = [n.name, n.book, n.author, n.content, n.qq].map(v => String(v == null ? '' : v).toLowerCase());
+    if (kw && !hay.some(v => v.includes(kw))) return;
+    rows.push(rowHtml(n, i + 1, openIds.has(String(n.id))));
+  });
+
+  const tip = document.getElementById('adminFilterTip');
+  if (tip) tip.textContent = kw ? `匹配 ${rows.length} / ${notes.length} 条` : '';
+
+  const tbody = document.getElementById('adminTableBody');
+  tbody.innerHTML = rows.length ? rows.join('')
+    : `<tr><td colspan="7" class="td-empty">${notes.length === 0 ? '还没有收到投递' : '没有匹配「' + esc(kw) + '」的结果'}</td></tr>`;
+}
+
+function rowHtml(n, num, expanded) {
+  const st = statusOf(n);
+  const [stLabel, stClass] = STATUS_META[st];
+  const content = String(n.content == null ? '' : n.content);
+  const short = content.slice(0, 80) + (content.length > 80 ? '…' : '');
+  const id = Number(n.id);
+  return `
+    <tr data-note-id="${id}">
+      <td data-label="#" class="td-no">${num}</td>
+      <td data-label="姓名">${esc(n.name)}</td>
+      <td data-label="书名"><strong>《${esc(n.book)}》</strong>${n.author ? '<span class="td-author">' + esc(n.author) + '</span>' : ''}</td>
+      <td data-label="心得" class="td-body"><details${expanded ? ' open' : ''}><summary>${esc(short)}</summary><p style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(content)}</p></details></td>
+      <td data-label="QQ" class="td-qq">${esc(n.qq) || '—'}</td>
+      <td data-label="状态"><span class="status-badge ${stClass}">${stLabel}</span></td>
+      <td data-label="操作" class="td-actions">
+        ${st !== 'approved' ? `<button class="btn-approve" onclick="setStatus(${id},'approved')">入图书角</button>` : ''}
+        ${st !== 'rejected' ? `<button class="btn-reject" onclick="setStatus(${id},'rejected')">拒绝</button>` : ''}
+        ${st !== 'pending'  ? `<button class="btn-draw btn-sm" onclick="setStatus(${id},'pending')">重置</button>` : ''}
+        <button class="btn-del" onclick="deleteNote(${id})">删除</button>
+      </td>
+    </tr>`;
+}
+
+async function setStatus(id, status) {
+  adminRequest++;
+  try {
+    await store.setStatus(id, status);
+    const note = adminCache && adminCache.find(n => n.id === id);
+    if (note) { note.status = status; renderAdminTable(adminCache); }
+    const labels = { approved: '已入选图书角', rejected: '已拒绝', pending: '已重置为待审核' };
+    toast(labels[status] || '操作成功');
+  } catch (e) {
+    toast(e.message || '操作失败');
+  }
+}
+
+async function deleteNote(id) {
+  if (!confirm('确定删除这条心得吗？删除后不可恢复。')) return;
+  adminRequest++;
+  try {
+    await store.remove(id);
+    if (adminCache) {
+      adminCache = adminCache.filter(n => n.id !== id);
+      renderAdminTable(adminCache);
+    }
+    toast('已删除');
+  } catch (e) {
+    toast(e.message || '删除失败');
+  }
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportData() {
+  const date = new Date().toLocaleDateString('zh-CN').replace(/\//g, '-');
+  if (IS_REMOTE) {
+    try {
+      const data = await apiFetch('/api/admin/export', { headers: { Authorization: 'Bearer ' + adminToken } });
+      downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'yizishuyu-export-' + date + '.json');
+      toast('数据已导出！');
+    } catch (e) {
+      toast(e.message || '导出失败');
+    }
+    return;
+  }
+  downloadBlob(new Blob([JSON.stringify(loadLocal(), null, 2)], { type: 'application/json' }),
+    '一纸书缘_心得数据_' + date + '.json');
+  toast('数据已导出！');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function removeToast(el) {
+  if (!el || el._gone) return;
+  el._gone = true;
+  el.classList.add('hide');
+  setTimeout(() => el.remove(), 260);
+}
+
+function toast(msg) {
+  const stack = document.getElementById('toastStack');
+  if (!stack) return;
+  const last = stack.lastElementChild;
+  if (last && last.dataset.msg === msg) { // 同一句重复提示不叠加
+    clearTimeout(Number(last.dataset.timer));
+    last.dataset.timer = String(setTimeout(() => removeToast(last), 2600));
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  el.dataset.msg = msg;
+  el.onclick = () => removeToast(el);
+  stack.appendChild(el);
+  // 容量限制要同步移除：淡出动画延迟删除会让 while 永远看到同一个节点。
+  while (stack.children.length > 3) {
+    const oldest = stack.firstElementChild;
+    clearTimeout(Number(oldest.dataset.timer));
+    oldest.remove();
+  }
+  el.dataset.timer = String(setTimeout(() => removeToast(el), 2600));
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+// 有 token 就直接进后台面板；token 是否过期由首次请求的 401 → forceLogout 判定
+if (adminToken) {
+  isLoggedIn = true;
+  document.getElementById('adminLogin').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+}
+
+// 后台登录提示按模式显示
+const pwdHint = document.getElementById('adminPwdHint');
+if (pwdHint) {
+  pwdHint.textContent = IS_REMOTE
+    ? '密码由服务器配置，请联系社团管理员'
+    : '默认密码：admin888（本地演示模式）';
+}
+
+// 按地址栏 hash 打开对应页面：刷新不丢当前页，手机可用返回键
+const initialPage = location.hash.replace(/^#/, '');
+if (!IS_REMOTE) {
+  const demo = document.getElementById('offlineBanner');
+  demo.textContent = '本地演示：数据仅保存在当前浏览器，其他人看不到。活动请使用正式网站链接。';
+  demo.classList.add('show');
+}
+goTo(PAGES.indexOf(initialPage) === -1 ? 'home' : initialPage, true);
+
+// 页面可见时同步多人共享数据；暂停后台标签，避免手机无谓耗电和流量。
+let refreshing = false;
+async function refreshVisiblePage() {
+  if (!IS_REMOTE || document.hidden || !isOnline || refreshing) return;
+  refreshing = true;
+  try {
+    if (currentPage === 'corner') await renderCorner(pageSeq, true);
+    if (currentPage === 'draw') await initDraw(pageSeq, true);
+    if (currentPage === 'admin' && isLoggedIn) await refreshAdmin(pageSeq, true);
+  } finally { refreshing = false; }
+}
+setInterval(refreshVisiblePage, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshVisiblePage(); });
+window.addEventListener('online', () => { apiFetch('/api/health').then(refreshVisiblePage).catch(() => {}); });
+</script>
+</body>
+</html>

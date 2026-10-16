@@ -1,0 +1,32 @@
+# Runtime data, user submissions and backups
+/data/
+*.bak
+*.prev
+*.tmp
+*.corrupt-*
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies, logs and generated artifacts
+node_modules/
+coverage/
+dist/
+artifacts/
+*.log
+*.zip
+
+# Personal editor and agent settings
+.claude/
+.codex/
+.vscode/
+.idea/
+.github-upload*
+.DS_Store
+Thumbs.db

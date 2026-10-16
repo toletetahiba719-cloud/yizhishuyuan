@@ -1,0 +1,16 @@
+{
+  "name": "yizishuyu",
+  "version": "2.0.0",
+  "description": "一纸书缘 · 敷天图书协会校园活动网站（零依赖 Node 服务 + 单文件前端）",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "loadtest": "node loadtest.js http://127.0.0.1:8080 500 --burst",
+    "smoke": "node smoke-test.js",
+    "test": "node --test integration-test.js frontend-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
