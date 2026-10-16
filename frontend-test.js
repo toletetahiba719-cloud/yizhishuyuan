@@ -6,7 +6,7 @@ const path = require('path');
 const vm = require('vm');
 
 // 运行实际内联脚本，模拟浏览器 DOM 和计时器，覆盖曾导致页面挂死的交互。
-function browser() {
+function browser(overrides = {}) {
   const elements = new Map();
   const timers = [];
   function element() {
@@ -35,7 +35,7 @@ function browser() {
     document, location: { protocol: 'file:', hash: '' }, localStorage: storage, sessionStorage: storage,
     window: { scrollTo() {}, addEventListener() {} }, navigator: {}, console,
     setTimeout(fn, ms) { timers.push({ fn, ms }); return timers.length; }, clearTimeout() {}, setInterval() {},
-    requestAnimationFrame() {}, confirm() { return true; }, Blob, URL, AbortController
+    requestAnimationFrame() {}, confirm() { return true; }, Blob, URL, AbortController, ...overrides
   });
   const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
   const code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
@@ -53,4 +53,28 @@ test('拆信动画结束前切页，不显示旧结果也不访问空信件', ()
   vm.runInContext("currentPage='draw';currentDraw={id:1,book:'测试',content:'心得',name:'书友'};openEnvelope();goTo('home');currentDraw=null", context);
   for (const timer of timers.filter(t => t.ms === 700)) assert.doesNotThrow(timer.fn);
   assert.notEqual(document.getElementById('envelopeResult').style.display, 'block');
+});
+
+test('会话过期后清除后台表格、统计和搜索内容', () => {
+  const { context, document } = browser();
+  document.getElementById('adminTableBody').innerHTML = '<tr>待审核内容与联系方式</tr>';
+  document.getElementById('adminSearch').value = '某位书友';
+  document.getElementById('stat-total').textContent = '12';
+  vm.runInContext("adminToken='expired';isLoggedIn=true;adminCache=[{id:1}];forceLogout()", context);
+  assert.equal(document.getElementById('adminTableBody').innerHTML, '');
+  assert.equal(document.getElementById('adminSearch').value, '');
+  assert.equal(document.getElementById('stat-total').textContent, '0');
+  assert.equal(vm.runInContext('adminCache === null && adminToken === null && !isLoggedIn', context), true);
+});
+
+test('旧会话的迟到 401 不会退出新登录的会话', async () => {
+  const { context } = browser({
+    location: { protocol: 'https:', hash: '' },
+    fetch: async () => ({ status: 401, ok: false, json: async () => ({ error: '登录已过期' }) })
+  });
+  vm.runInContext("adminToken='new-session';isLoggedIn=true", context);
+  await assert.rejects(vm.runInContext("apiFetch('/api/admin/notes',{headers:{Authorization:'Bearer old-session'}})", context));
+  assert.equal(vm.runInContext("isLoggedIn && adminToken === 'new-session'", context), true);
+  await assert.rejects(vm.runInContext("apiFetch('/api/admin/notes',{headers:{Authorization:'Bearer new-session'}})", context));
+  assert.equal(vm.runInContext('isLoggedIn', context), false);
 });

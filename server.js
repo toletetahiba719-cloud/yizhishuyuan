@@ -17,10 +17,10 @@
  */
 'use strict';
 
-// Node 18 以下没有 server.requestTimeout，断连客户端会永久占坑
+// 使用仍在维护的 Node 版本，与部署脚本和 CI 保持一致。
 const NODE_MAJOR = parseInt(process.versions.node.split('.')[0], 10);
-if (NODE_MAJOR < 18) {
-  console.error(`\n  ✗ 需要 Node.js 18 或更高版本，当前是 ${process.versions.node}。`);
+if (NODE_MAJOR < 22) {
+  console.error(`\n  ✗ 需要 Node.js 22 或更高版本，当前是 ${process.versions.node}。`);
   console.error('    请升级 Node（部署脚本会自动安装 Node 24）。\n');
   process.exit(1);
 }
@@ -40,8 +40,11 @@ const PREV_FILE = NOTES_FILE + '.prev';       // 完整上一版（rename 轮转
 const TMP_FILE = NOTES_FILE + '.tmp';
 const RECOVERY_FILE = path.join(DATA_DIR, 'recovery-required');
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin888';
-if (process.env.NODE_ENV === 'production' && (!process.env.ADMIN_PASSWORD || ADMIN_PASSWORD.length < 16 || ADMIN_PASSWORD === 'admin888')) {
-  console.error('生产环境必须设置至少 16 位的独立 ADMIN_PASSWORD。');
+const LOCAL_HOSTS = new Set(['127.0.0.1', '::1', 'localhost']);
+const EXAMPLE_PASSWORDS = new Set(['admin888', 'replace-with-a-unique-random-password-at-least-16-chars']);
+if ((process.env.NODE_ENV === 'production' || !LOCAL_HOSTS.has(HOST)) &&
+    (!process.env.ADMIN_PASSWORD || ADMIN_PASSWORD.trim().length < 16 || EXAMPLE_PASSWORDS.has(ADMIN_PASSWORD))) {
+  console.error('生产环境或对外监听必须设置至少 16 位的独立 ADMIN_PASSWORD，不可使用演示或示例密码。');
   process.exit(1);
 }
 const RATE_LIMIT_PER_HOUR = parseInt(process.env.RATE_LIMIT_PER_HOUR || '0', 10); // 0 = 关闭（默认）
@@ -554,6 +557,8 @@ const server = http.createServer(async (req, res) => {
   try {
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'same-origin');
+    res.setHeader('Content-Security-Policy', "base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'");
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     // ⚠ 解析 URL 必须在 try 内：畸形 URL 会抛异常，未捕获即进程崩溃
     let url;
     try {
@@ -568,10 +573,19 @@ const server = http.createServer(async (req, res) => {
     if (['POST', 'DELETE'].includes(req.method)) {
       let foreignOrigin = req.headers['sec-fetch-site'] === 'cross-site';
       if (req.headers.origin) {
-        try { foreignOrigin = foreignOrigin || new URL(req.headers.origin).host !== req.headers.host; }
+        try {
+          const protocol = TRUST_PROXY && req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+          foreignOrigin = foreignOrigin || new URL(req.headers.origin).origin !== new URL(`${protocol}://${req.headers.host}`).origin;
+        }
         catch { foreignOrigin = true; }
       }
       if (foreignOrigin) { sendJson(res, 403, { error: '请通过本站页面操作' }); return; }
+    }
+    // POST 接口仅接收 JSON，拒绝跨站表单可直接发送的 text/plain 等简单请求。
+    if (req.method === 'POST' && p.startsWith('/api/') && p !== '/api/admin/logout' &&
+        (req.headers['content-type'] || '').split(';')[0].trim().toLowerCase() !== 'application/json') {
+      sendJson(res, 415, { error: '请使用 application/json 提交数据' });
+      return;
     }
 
     // 静态：白名单，URL 永不触达文件系统
@@ -707,6 +721,8 @@ const server = http.createServer(async (req, res) => {
         const id = Number(sm[1]);
         const body = await bodyOrFail(req, res);
         if (body === null) return;
+        // 接收内容期间可能已退出登录；写入前再次校验会话，撤销立即生效。
+        if (!authed(req)) { sendJson(res, 401, { error: '登录已过期，请重新登录' }); return; }
         const status = body.status;
         if (!VALID_STATUS.includes(status)) { stats.err++; sendJson(res, 400, { error: '非法状态' }); return; }
         // ↓ 同步块：查找 + 修改 + 版本推进

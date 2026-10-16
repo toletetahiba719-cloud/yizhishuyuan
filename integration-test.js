@@ -19,11 +19,11 @@ async function freePort() {
   await new Promise(resolve => server.close(resolve));
   return port;
 }
-async function start(dataDir) {
+async function start(dataDir, config = {}) {
   const port = await freePort();
   const child = spawn(process.execPath, ['server.js'], {
     cwd: __dirname,
-    env: { ...process.env, PORT: String(port), BIND_HOST: '127.0.0.1', DATA_DIR: dataDir, NODE_ENV: 'production', ADMIN_PASSWORD: password, TRUST_PROXY: '0', RATE_LIMIT_PER_HOUR: '0' },
+    env: { ...process.env, PORT: String(port), BIND_HOST: '127.0.0.1', DATA_DIR: dataDir, NODE_ENV: 'production', ADMIN_PASSWORD: password, TRUST_PROXY: '0', RATE_LIMIT_PER_HOUR: '0', ...config },
     stdio: ['ignore', 'pipe', 'pipe']
   });
   let log = '';
@@ -109,6 +109,21 @@ test('校园活动完整流程（全部使用临时数据）', { timeout: 120000
       assert.equal((await request(server, '/api/notes', 'POST', note, undefined, { Origin: 'https://other.example' })).status, 403);
       assert.equal((await request(server, '/api/notes', 'POST', { ...note, content: '大'.repeat(20000) })).status, 413);
     });
+    await t.test('只接受 JSON 写入；跨协议来源被拒绝，同源页面可操作', async () => {
+      assert.equal((await request(server, '/api/notes', 'POST', note, undefined, { 'Content-Type': 'text/plain' })).status, 415);
+      assert.equal((await request(server, '/api/login', 'POST', { password }, undefined, { 'Content-Type': 'text/plain' })).status, 415);
+      assert.equal((await request(server, '/api/notes', 'POST', note, undefined, { Origin: server.base.replace('http:', 'https:') })).status, 403);
+      assert.equal((await request(server, '/api/notes', 'POST', note, undefined, { Origin: server.base.replace('http:', 'https:'), 'X-Forwarded-Proto': 'https' })).status, 403);
+      assert.equal((await request(server, '/api/notes', 'POST', note, undefined, { Origin: server.base })).status, 200);
+    });
+    await t.test('页面与敏感文件隔离，安全响应头有效', async () => {
+      const page = await fetch(server.base);
+      assert.equal(page.headers.get('x-frame-options'), 'DENY');
+      assert.match(page.headers.get('content-security-policy') || '', /base-uri 'none'/);
+      for (const file of ['/.env', '/data/notes.json', '/server.js', '/.git/config', '/%2e%2e/server.js']) {
+        assert.equal((await fetch(server.base + file)).status, 404, file);
+      }
+    });
     await t.test('磁盘不可写时返回 503，内存不会假装修改成功', async () => {
       fs.mkdirSync(notesFile + '.tmp');
       try {
@@ -124,6 +139,29 @@ test('校园活动完整流程（全部使用临时数据）', { timeout: 120000
       assert.equal((await request(server, '/api/notes')).body[0].id, id);
       assert.equal((await request(server, '/api/notes', 'POST', note)).body.id, id);
       token = (await request(server, '/api/login', 'POST', { password })).body.token;
+    });
+    await t.test('退出登录时撤销尚在接收内容的审核请求', async () => {
+      const payload = JSON.stringify({ status: 'rejected' });
+      let pending;
+      const result = new Promise((resolve, reject) => {
+        pending = http.request(server.base + `/api/admin/notes/${id}/status`, {
+          method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }
+        }, res => { res.resume(); res.on('end', () => resolve(res.statusCode)); });
+        pending.on('error', reject);
+        pending.setTimeout(5000, () => pending.destroy(new Error('审核请求超时')));
+        pending.write(payload.slice(0, -1));
+      });
+      try {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        assert.equal((await request(server, '/api/admin/logout', 'POST', {}, token)).status, 200);
+        pending.end(payload.slice(-1));
+        assert.equal(await result, 401);
+        assert.equal((await request(server, '/api/notes')).body[0].id, id, '已公开记录不得被已撤销的会话修改');
+      } finally {
+        pending.destroy();
+        await result.catch(() => {});
+        token = (await request(server, '/api/login', 'POST', { password })).body.token;
+      }
     });
     await t.test('删除后可重新投递同内容；退出后的旧 token 失效', async () => {
       assert.equal((await request(server, `/api/admin/notes/${id}`, 'DELETE', undefined, token)).status, 200);
@@ -192,4 +230,31 @@ test('校园活动完整流程（全部使用临时数据）', { timeout: 120000
     await stop(server);
     fs.rmSync(dataDir, { recursive: true, force: true });
   }
+});
+
+test('对外监听或生产环境拒绝演示密码、示例密码和空白密码', () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'yzsy-config-'));
+  try {
+    for (const config of [
+      { NODE_ENV: 'development', BIND_HOST: '0.0.0.0', ADMIN_PASSWORD: 'admin888' },
+      { NODE_ENV: 'production', BIND_HOST: '127.0.0.1', ADMIN_PASSWORD: 'replace-with-a-unique-random-password-at-least-16-chars' },
+      { NODE_ENV: 'production', BIND_HOST: '127.0.0.1', ADMIN_PASSWORD: ' '.repeat(20) }
+    ]) {
+      const run = spawnSync(process.execPath, ['server.js'], { cwd: __dirname, env: { ...process.env, DATA_DIR: dataDir, ...config }, encoding: 'utf8', timeout: 1500 });
+      assert.notEqual(run.status, 0);
+      assert.match(run.stderr, /ADMIN_PASSWORD/);
+      assert.equal(run.signal, null, '应主动拒绝启动，而不是因测试超时被终止');
+    }
+  } finally { fs.rmSync(dataDir, { recursive: true, force: true }); }
+});
+
+test('HTTPS 反向代理后的同源操作正常，HTTP 来源不能冒充 HTTPS', async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'yzsy-proxy-'));
+  let server;
+  try {
+    server = await start(dataDir, { TRUST_PROXY: '1' });
+    const headers = { Origin: server.base.replace('http:', 'https:'), 'X-Forwarded-Proto': 'https' };
+    assert.equal((await request(server, '/api/notes', 'POST', note, undefined, headers)).status, 201);
+    assert.equal((await request(server, '/api/notes', 'POST', note, undefined, { ...headers, Origin: server.base })).status, 403);
+  } finally { await stop(server); fs.rmSync(dataDir, { recursive: true, force: true }); }
 });

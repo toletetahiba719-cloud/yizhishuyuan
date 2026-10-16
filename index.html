@@ -917,7 +917,8 @@ async function apiFetch(path, opts = {}) {
     let body = {};
     try { body = await res.json(); } catch (e) { throw new Error('服务器响应异常，请稍后重试'); }
     if (!res.ok) {
-      if (res.status === 401 && path.indexOf('/api/admin') === 0) forceLogout();
+      if (res.status === 401 && path.indexOf('/api/admin') === 0 &&
+          opts.headers && opts.headers.Authorization === 'Bearer ' + adminToken) forceLogout();
       throw new Error(body.error || '请求失败，请稍后再试');
     }
     setOnline(true);
@@ -985,6 +986,7 @@ function forceLogout() {
   ss.del(SESSION_KEY);
   isLoggedIn = false;
   adminCache = null;
+  clearAdminView();
   document.getElementById('adminLogin').style.display = 'block';
   document.getElementById('adminPanel').style.display = 'none';
   toast('登录已过期，请重新登录');
@@ -1039,7 +1041,7 @@ const contentCount = document.getElementById('content-count');
 function updateCount() {
   const len = contentTa.value.trim().length;
   contentCount.textContent = len + ' 字';
-  contentCount.classList.toggle('ok', len >= 100 && len <= 2000);
+  contentCount.classList.toggle('ok', len >= 20 && len <= 2000);
   contentCount.classList.toggle('warn', len > 2000);
   if (len > 2000) contentCount.textContent = len + ' 字 · 超出 2000';
 }
@@ -1055,6 +1057,8 @@ async function submitNote() {
   if (!name) { toast('请填写你的姓名 😊'); return; }
   if (name.length > 20) { toast('姓名太长啦，20 字以内'); return; }
   if (!book) { toast('请填写推荐的书名 📖'); return; }
+  if (book.length > 50) { toast('书名太长啦，50 字以内'); return; }
+  if (author.length > 30) { toast('作者名太长啦，30 字以内'); return; }
   if (content.length < 20) { toast('心得内容至少写 20 字哦，多写一点吧！'); return; }
   if (content.length > 2000) { toast('心得太长啦，2000 字以内'); return; }
   if (qq && !/^\d{5,12}$/.test(qq)) { toast('QQ号看起来不太对哦，请检查一下～'); return; }
@@ -1323,6 +1327,7 @@ async function adminLogout() {
   isLoggedIn = false;
   adminToken = null;
   adminCache = null;
+  clearAdminView();
   ss.del(SESSION_KEY);
   document.getElementById('adminLogin').style.display = 'block';
   document.getElementById('adminPanel').style.display = 'none';
@@ -1338,6 +1343,16 @@ const STATUS_META = {
 
 let adminCache = null; // 后台全量数据缓存：搜索过滤在本地跑，不逐键请求服务器
 let adminRequest = 0;
+
+function clearAdminView() {
+  adminRequest++;
+  document.getElementById('adminTableBody').innerHTML = '';
+  document.getElementById('adminSearch').value = '';
+  document.getElementById('adminFilterTip').textContent = '';
+  ['total', 'pending', 'approved', 'rejected'].forEach(key => {
+    document.getElementById('stat-' + key).textContent = '0';
+  });
+}
 
 // 老数据可能没有 status 字段，一律按"待审核"处理，保证统计数字对得上
 function statusOf(n) {
@@ -1409,9 +1424,11 @@ function rowHtml(n, num, expanded) {
 }
 
 async function setStatus(id, status) {
+  const token = adminToken;
   adminRequest++;
   try {
     await store.setStatus(id, status);
+    if (!isLoggedIn || token !== adminToken) return;
     const note = adminCache && adminCache.find(n => n.id === id);
     if (note) { note.status = status; renderAdminTable(adminCache); }
     const labels = { approved: '已入选图书角', rejected: '已拒绝', pending: '已重置为待审核' };
@@ -1423,9 +1440,11 @@ async function setStatus(id, status) {
 
 async function deleteNote(id) {
   if (!confirm('确定删除这条心得吗？删除后不可恢复。')) return;
+  const token = adminToken;
   adminRequest++;
   try {
     await store.remove(id);
+    if (!isLoggedIn || token !== adminToken) return;
     if (adminCache) {
       adminCache = adminCache.filter(n => n.id !== id);
       renderAdminTable(adminCache);
