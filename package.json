@@ -1,5 +1,5 @@
 {
-  "name": "yizishuyu",
+  "name": "yizhishuyuan",
   "version": "2.0.0",
   "description": "一纸书缘 · 敷天图书协会校园活动网站（零依赖 Node 服务 + 单文件前端）",
   "main": "server.js",

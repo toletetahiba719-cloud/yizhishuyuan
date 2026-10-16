@@ -1,4 +1,4 @@
-# 一纸书缘 · 校园社团活动网站
+# 一纸书缘
 
 面向校园读书活动的网页应用：投递阅读心得、随机拆信、浏览图书角，管理员审核和导出数据。支持约 300 人在数天至数周内分批参与，通过同一个 HTTPS 链接或微信二维码访问。
 
@@ -18,8 +18,8 @@
 推荐 **Node.js 24 LTS**，CI 验证 Node.js 22 / 24。
 
 ```bash
-git clone https://github.com/toletetahiba719-cloud/yizishuyu.git
-cd yizishuyu
+git clone https://github.com/toletetahiba719-cloud/yizhishuyuan.git
+cd yizhishuyuan
 npm ci --ignore-scripts
 npm start
 ```

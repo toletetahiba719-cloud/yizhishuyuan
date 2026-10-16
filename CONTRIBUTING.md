@@ -21,4 +21,4 @@ npm test
 
 发布前先运行测试，确认数据备份，再按 [部署教程](docs/deployment.md) 上传更新。安装脚本保留已有活动数据与配置。更新后执行只读自检，核对提交、审核公开和导出流程。
 
-可使用 `git archive --format=zip --prefix=yizishuyu/ -o yizishuyu-source.zip HEAD` 生成仅含已跟踪源码的干净打包文件。压缩包不包含 `.git`、活动数据或本地密码。
+可使用 `git archive --format=zip --prefix=yizhishuyuan/ -o 一纸书缘-source.zip HEAD` 生成仅含已跟踪源码的干净打包文件。压缩包不包含 `.git`、活动数据或本地密码。
